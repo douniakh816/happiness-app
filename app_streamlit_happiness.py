@@ -18,12 +18,12 @@ uploaded_file = st.file_uploader("Upload CSV File", type=["csv"])
 
 if uploaded_file is not None:
     df = pd.read_csv(uploaded_file)
-    st.success("Dataset loaded successfully!")
+    st.success("✅ Dataset loaded successfully!")
 elif os.path.exists("2018.csv"):
-    st.info("No file uploaded. Loading default dataset (2018.csv)...")
+    st.info("📂 No file uploaded. Loading default dataset (2018.csv)...")
     df = pd.read_csv("2018.csv")
 else:
-    st.warning("Please upload the CSV file to proceed.")
+    st.warning("⚠️ Please upload the CSV file to proceed.")
     st.stop()
 
 # Sidebar Filter
@@ -34,8 +34,17 @@ selected_countries = st.sidebar.multiselect("Select countries:", countries, defa
 # Apply filter
 df = df[df['Country or region'].isin(selected_countries)]
 
-# Show the filtered data
+# Show filtered data
+st.subheader("📊 Preview of Filtered Data")
 st.write(df.head())
+
+# Download filtered data
+st.download_button(
+    label="📥 Download Filtered Data as CSV",
+    data=df.to_csv(index=False),
+    file_name='filtered_data.csv',
+    mime='text/csv'
+)
 
 # Create a new column based on social support level
 df['Support_Level'] = df['Social support'].apply(lambda x: 'High' if x > 1.2 else 'Low')

@@ -2,26 +2,40 @@ import streamlit as st
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
-import os  # <-- هذا السطر جديد
+import os
 
-# Title
+# Title and description
 st.title("World Happiness and Social Support Analysis")
+st.markdown("""
+Welcome to the **World Happiness and Social Support Analysis** app!  
+This dashboard allows you to explore how social support influences happiness levels across countries.  
+You can upload your own CSV file or use the default 2018 dataset.
+""")
 
-# Load the dataset
+# Load dataset
 st.header("1. Load Dataset")
 uploaded_file = st.file_uploader("Upload CSV File", type=["csv"])
 
 if uploaded_file is not None:
     df = pd.read_csv(uploaded_file)
     st.success("Dataset loaded successfully!")
-    st.write(df.head())
 elif os.path.exists("2018.csv"):
     st.info("No file uploaded. Loading default dataset (2018.csv)...")
     df = pd.read_csv("2018.csv")
-    st.write(df.head())
 else:
     st.warning("Please upload the CSV file to proceed.")
     st.stop()
+
+# Sidebar Filter
+st.sidebar.header("🔎 Filter Data")
+countries = df['Country or region'].unique().tolist()
+selected_countries = st.sidebar.multiselect("Select countries:", countries, default=countries)
+
+# Apply filter
+df = df[df['Country or region'].isin(selected_countries)]
+
+# Show the filtered data
+st.write(df.head())
 
 # Create a new column based on social support level
 df['Support_Level'] = df['Social support'].apply(lambda x: 'High' if x > 1.2 else 'Low')
